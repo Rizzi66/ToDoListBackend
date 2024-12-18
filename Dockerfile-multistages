@@ -1,0 +1,45 @@
+# Première étape : Installer les dépendances
+FROM node:18-alpine AS base
+# Utiliser l'image officielle Node.js basée sur Alpine pour minimiser la taille
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copier uniquement les fichiers nécessaires pour installer les dépendances
+COPY package.json package-lock.json ./
+
+# Installer les dépendances de production
+RUN npm ci
+# `npm ci` est plus rapide et plus fiable que `npm install` pour les environnements CI/CD
+
+# Copier le reste des fichiers dans le conteneur
+COPY . .
+
+# Construire l'application (par exemple, générer des fichiers statiques ou compiler du code)
+RUN npm run build
+
+# Deuxième étape : Préparer l'image pour exécution
+FROM node:18-alpine AS production
+# Utiliser une nouvelle couche pour ne conserver que l'essentiel
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier uniquement les fichiers nécessaires depuis la première étape
+COPY --from=base /app/dist ./dist
+COPY --from=base /app/package*.json ./
+
+# Installer uniquement les dépendances de production
+RUN npm ci --only=production
+# Réduit la taille de l'image en n'installant que ce qui est nécessaire pour exécuter l'application
+
+# Exposer le port sur lequel l'application s'exécute
+EXPOSE 3000
+
+# Démarrer l'application
+CMD ["node", "dist/server.js"]
+
+
+# docker create network keyce_network
+#  docker build -t api-cours-abstract-slim -f ./Dockerfile-multistages .
+# docker run -d -p 3000:3004 --network keyce_net --name api-abstract-slim api-cours-abstract-slim
