@@ -20,8 +20,14 @@ exports.createTask = async (req: Request, res: Response) => {
     const task = new Task(title, description, dateExpiration);
 
     const queryText =
-      "INSERT INTO tasks (titre, description, date_creation, date_expiration) VALUES ($1, $2, $3, $4) RETURNING *";
-    const params = [title, description, task.dateCreation, dateExpiration];
+      "INSERT INTO tasks (titre, description, statut, date_creation, date_expiration) VALUES ($1, $2, $3, $4, $5) RETURNING *";
+    const params = [
+      title,
+      description,
+      task.statut,
+      task.dateCreation,
+      dateExpiration,
+    ];
     const result = await query(queryText, params);
 
     res.json(result.rows[0]);
@@ -33,12 +39,12 @@ exports.createTask = async (req: Request, res: Response) => {
 
 exports.modifyTask = async (req: Request, res: Response) => {
   try {
-    const { title, description, dateExpiration } = req.body;
+    const { title, description, dateExpiration, statut } = req.body;
     const taskId = req.params.id;
 
     const queryText =
-      "UPDATE tasks SET titre = $1, description = $2, date_expiration = $3 WHERE id = $4 RETURNING *";
-    const params = [title, description, dateExpiration, taskId];
+      "UPDATE tasks SET titre = $1, description = $2, date_expiration = $3, statut = $4 WHERE id = $5 RETURNING *";
+    const params = [title, description, dateExpiration, statut, taskId];
     const result = await query(queryText, params);
 
     res.json(result.rows[0]);

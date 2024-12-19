@@ -1,20 +1,20 @@
-enum TaskStatus {
+enum taskStatuts {
   EnCours = "En cours",
-  Terminee = "Terminée",
-  AFaire = "À faire",
+  Terminee = "Terminee",
+  AFaire = "A faire",
 }
 
 export default class Task {
   titre: string;
   description: string;
-  statut: TaskStatus;
+  statut: taskStatuts;
   dateCreation: Date;
   dateExpiration: Date;
 
   constructor(titre: string, description: string, dateExpiration: Date) {
     this.titre = titre;
     this.description = description;
-    this.statut = TaskStatus.EnCours;
+    this.statut = taskStatuts.AFaire;
     this.dateCreation = new Date();
     this.dateExpiration = dateExpiration;
   }
