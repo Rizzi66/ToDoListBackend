@@ -11,10 +11,15 @@ export default class Task {
   dateCreation: Date;
   dateExpiration: Date;
 
-  constructor(titre: string, description: string, dateExpiration: Date) {
+  constructor(
+    titre: string,
+    description: string,
+    dateExpiration: Date,
+    statut: taskStatuts
+  ) {
     this.titre = titre;
     this.description = description;
-    this.statut = taskStatuts.AFaire;
+    this.statut = statut;
     this.dateCreation = new Date();
     this.dateExpiration = dateExpiration;
   }

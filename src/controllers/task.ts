@@ -4,7 +4,34 @@ import { query } from "../db";
 
 exports.getAllTasks = async (req: Request, res: Response) => {
   try {
-    const queryText = "SELECT * FROM tasks";
+    const queryText =
+      "SELECT id, titre, description, date_expiration, statut FROM tasks";
+    const result = await query(queryText);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
+};
+
+exports.getTaskByStatus = async (req: Request, res: Response) => {
+  try {
+    const taskStatus = req.params.status;
+    const queryText = `SELECT * FROM tasks WHERE statut='${taskStatus}'`;
+    const result = await query(queryText);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
+};
+
+exports.getTask = async (req: Request, res: Response) => {
+  try {
+    const taskId = req.params.id;
+    const queryText = `SELECT * FROM tasks WHERE id=${taskId}`;
     const result = await query(queryText);
 
     res.json(result.rows);
@@ -16,17 +43,17 @@ exports.getAllTasks = async (req: Request, res: Response) => {
 
 exports.createTask = async (req: Request, res: Response) => {
   try {
-    const { title, description, dateExpiration } = req.body;
-    const task = new Task(title, description, dateExpiration);
+    const { titre, description, date_expiration, statut } = req.body;
+    const task = new Task(titre, description, date_expiration, statut);
 
     const queryText =
       "INSERT INTO tasks (titre, description, statut, date_creation, date_expiration) VALUES ($1, $2, $3, $4, $5) RETURNING *";
     const params = [
-      title,
+      titre,
       description,
-      task.statut,
+      statut,
       task.dateCreation,
-      dateExpiration,
+      date_expiration,
     ];
     const result = await query(queryText, params);
 
@@ -39,12 +66,12 @@ exports.createTask = async (req: Request, res: Response) => {
 
 exports.modifyTask = async (req: Request, res: Response) => {
   try {
-    const { title, description, dateExpiration, statut } = req.body;
+    const { titre, description, date_expiration, statut } = req.body;
     const taskId = req.params.id;
 
     const queryText =
       "UPDATE tasks SET titre = $1, description = $2, date_expiration = $3, statut = $4 WHERE id = $5 RETURNING *";
-    const params = [title, description, dateExpiration, statut, taskId];
+    const params = [titre, description, date_expiration, statut, taskId];
     const result = await query(queryText, params);
 
     res.json(result.rows[0]);
