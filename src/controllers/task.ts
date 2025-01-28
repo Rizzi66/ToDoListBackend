@@ -4,8 +4,7 @@ import { query } from "../db";
 
 exports.getAllTasks = async (req: Request, res: Response) => {
   try {
-    const queryText =
-      "SELECT id, titre, description, date_expiration, statut FROM tasks";
+    const queryText = "SELECT * FROM tasks";
     const result = await query(queryText);
 
     res.json(result.rows);
