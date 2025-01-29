@@ -1,13 +1,14 @@
 import express, { Express } from "express";
 import cors from "cors";
 import taskRoutes from "./routes/task";
+const dotenv = require("dotenv").config().parsed;
 
 const app: Express = express();
-const port: number = 3004;
+const port: number = dotenv.BACK_END_PORT | 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: dotenv.FRONT_END_URL,
   })
 );
 
