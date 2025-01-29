@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import Task from "../class/task";
 import { query } from "../db";
+import { QueryResult, QueryResultRow } from "pg";
 
-exports.getAllTasks = async (req: Request, res: Response) => {
+export const getAllTasks = async (req: Request, res: Response): Promise<void> => {
   try {
-    const queryText = "SELECT * FROM tasks";
-    const result = await query(queryText);
+    const queryText: string = "SELECT * FROM tasks";
+    const result: QueryResult = await query(queryText);
 
     res.json(result.rows);
   } catch (err) {
@@ -14,11 +15,11 @@ exports.getAllTasks = async (req: Request, res: Response) => {
   }
 };
 
-exports.getTaskByStatus = async (req: Request, res: Response) => {
+export const getTaskByStatus = async (req: Request, res: Response): Promise<void> => {
   try {
-    const taskStatus = req.params.status;
-    const queryText = `SELECT * FROM tasks WHERE statut='${taskStatus}'`;
-    const result = await query(queryText);
+    const taskStatus: string[] = [req.params.status];
+    const queryText: string = `SELECT * FROM tasks WHERE statut=$1`;
+    const result: QueryResult = await query(queryText, taskStatus);
 
     res.json(result.rows);
   } catch (err) {
@@ -27,11 +28,11 @@ exports.getTaskByStatus = async (req: Request, res: Response) => {
   }
 };
 
-exports.getTask = async (req: Request, res: Response) => {
+export const getTask = async (req: Request, res: Response): Promise<void> => {
   try {
-    const taskId = req.params.id;
-    const queryText = `SELECT * FROM tasks WHERE id=${taskId}`;
-    const result = await query(queryText);
+    const taskId: string[] = [req.params.id];
+    const queryText: string = `SELECT * FROM tasks WHERE id=$1`;
+    const result: QueryResult = await query(queryText, taskId);
 
     res.json(result.rows);
   } catch (err) {
@@ -40,21 +41,15 @@ exports.getTask = async (req: Request, res: Response) => {
   }
 };
 
-exports.createTask = async (req: Request, res: Response) => {
+export const createTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const { titre, description, date_expiration, statut } = req.body;
     const task = new Task(titre, description, date_expiration, statut);
 
-    const queryText =
+    const queryText: string =
       "INSERT INTO tasks (titre, description, statut, date_creation, date_expiration) VALUES ($1, $2, $3, $4, $5) RETURNING *";
-    const params = [
-      titre,
-      description,
-      statut,
-      task.dateCreation,
-      date_expiration,
-    ];
-    const result = await query(queryText, params);
+    const params: any[] = [titre, description, statut, task.dateCreation, date_expiration];
+    const result: QueryResult = await query(queryText, params);
 
     res.json(result.rows[0]);
   } catch (err) {
@@ -63,15 +58,15 @@ exports.createTask = async (req: Request, res: Response) => {
   }
 };
 
-exports.modifyTask = async (req: Request, res: Response) => {
+export const modifyTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const { titre, description, date_expiration, statut } = req.body;
-    const taskId = req.params.id;
+    const taskId: string[] = [req.params.id];
 
-    const queryText =
+    const queryText: string =
       "UPDATE tasks SET titre = $1, description = $2, date_expiration = $3, statut = $4 WHERE id = $5 RETURNING *";
-    const params = [titre, description, date_expiration, statut, taskId];
-    const result = await query(queryText, params);
+    const params: any[] = [titre, description, date_expiration, statut, taskId];
+    const result: QueryResult = await query(queryText, params);
 
     res.json(result.rows[0]);
   } catch (err) {
@@ -80,12 +75,11 @@ exports.modifyTask = async (req: Request, res: Response) => {
   }
 };
 
-exports.deleteTask = async (req: Request, res: Response) => {
+export const deleteTask = async (req: Request, res: Response): Promise<void> => {
   try {
-    const taskId = req.params.id;
-    const queryText = "DELETE FROM tasks WHERE id = $1 RETURNING *";
-    const params = [taskId];
-    const result = await query(queryText, params);
+    const taskId: string[] = [req.params.id];
+    const queryText: string = "DELETE FROM tasks WHERE id = $1 RETURNING *";
+    const result: QueryResult = await query(queryText, taskId);
 
     res.json(result.rows[0]);
   } catch (err) {

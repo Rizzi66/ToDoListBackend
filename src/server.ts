@@ -1,11 +1,9 @@
-// ------------------ API avec Classes Simples ------------------
-
-import express, { Request, Response } from "express";
+import express, { Express } from "express";
 import cors from "cors";
-const taskRoutes = require("./routes/task");
+import taskRoutes from "./routes/task";
 
-const app = express();
-const port = 3004;
+const app: Express = express();
+const port: number = 3004;
 
 app.use(
   cors({
